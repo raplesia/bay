@@ -1,22 +1,23 @@
-require("dotenv").config();
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
+
+let isConnected = false;
 
 const connectDB = async () => {
-  if (mongoose.connection.readyState >= 1) {
+  if (isConnected) {
     return;
   }
 
   try {
-    await mongoose.connect(process.env.MONGODB_URI, {
+    const conn = await mongoose.connect(process.env.MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 5000,
     });
 
-    console.log("✅ MongoDB Connected...");
-  } catch (err) {
-    console.error("❌ MongoDB Connection Error:", err.message);
-    process.exit(1);
+    isConnected = conn.connections[0].readyState;
+    console.log('MongoDB Connected');
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+    throw error; // sangat penting: lempar kembali supaya fungsi gagal secara eksplisit
   }
 };
 
